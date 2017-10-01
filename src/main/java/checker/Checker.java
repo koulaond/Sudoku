@@ -65,7 +65,7 @@ public class Checker {
     /**
      * Checks all numbers in whole sudoku ground and returns two dimensional array with collided items.
      * @param ground sudoku ground
-     * @return collided items
+     * @return array containing collided items or an empty array if no collided item was found
      */
     public int[][] checkAll(int[][] ground) {
         ArrayList<Integer[]> collisions = new ArrayList<Integer[]>();

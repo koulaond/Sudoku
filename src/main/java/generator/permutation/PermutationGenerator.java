@@ -1,4 +1,6 @@
-package generator;
+package generator.permutation;
+
+import generator.Generator;
 
 public class PermutationGenerator implements Generator {
 
