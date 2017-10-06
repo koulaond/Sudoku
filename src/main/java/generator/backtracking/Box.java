@@ -1,17 +1,16 @@
 package generator.backtracking;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Box {
     private final Integer boxRow;
     private final Integer boxColumn;
-    private final Point[][] ground;
+    private final Field[][] fields;
 
-    public Box(Integer boxRow, Integer boxColumn, Point[][] ground) {
+    public Box(Integer boxRow, Integer boxColumn, Field[][] fields) {
         this.boxRow = boxRow;
         this.boxColumn = boxColumn;
-        this.ground = ground;
+        this.fields = fields;
     }
 
     public Integer getBoxRow() {
@@ -22,14 +21,6 @@ public class Box {
         return boxColumn;
     }
 
-    public Point[][] getGround() {
-        return this.ground;
-    }
-
-    public void setNumber(Integer row, Integer col, Integer value) {
-        this.ground[this.boxRow * 3 + row][this.boxColumn * 3 + col].setValue(value);
-    }
-
     public boolean isFull() {
         return getEmptyFields().isEmpty();
     }
@@ -38,14 +29,14 @@ public class Box {
         return boxRow == 2 && boxColumn == 2;
     }
 
-    public ArrayList<Point> getEmptyFields() {
-        ArrayList<Point> emptyFields = new ArrayList();
+    public ArrayList<Field> getEmptyFields() {
+        ArrayList<Field> emptyFields = new ArrayList();
         Integer startX = boxRow * 3;
         Integer startY = boxColumn * 3;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Point actual = ground[startX + i][startY + j];
-                if (actual.getValue() == 0) {
+                Field actual = fields[startX + i][startY + j];
+                if (actual.isEmpty()) {
                     emptyFields.add(actual);
                 }
             }
