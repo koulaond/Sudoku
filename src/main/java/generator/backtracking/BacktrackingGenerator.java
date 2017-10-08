@@ -3,14 +3,62 @@ package generator.backtracking;
 import generator.Generator;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BacktrackingGenerator implements Generator {
 
-    private final Ground ground = new Ground();
+    private final Field[][] fields;
+    private final Box[][] boxes;
 
     public BacktrackingGenerator() {
+        fields = new Field[9][9];
+        boxes = new Box[3][3];
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[i].length; j++) {
+                fields[i][j] = new Field(i, j);
+            }
+        }
+        Stream.of(fields)
+                .forEach(fieldsRow -> Stream.of(fieldsRow)
+                        .forEach(field -> {
+                            field.initCrossFields(fields);
+                            field.initBoxFields(fields);
+                        }));
 
+        for (int i = 0; i < boxes.length; i++) {
+            for (int j = 0; j < boxes[i].length; j++) {
+                boxes[i][j] = new Box(i, j, fields);
+            }
+        }
     }
+
+    private Box nextBox(Integer boxRow, Integer boxColumn, Integer valueFor) {
+        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
+        else if (boxRow == 2 && boxColumn == 2) return getFirstBox();
+        else if (boxColumn == 2) return boxes[boxRow + 1][0];
+        else return boxes[boxRow][boxColumn + 1];
+    }
+
+    private Box getFirstBox() {
+        return boxes[0][0];
+    }
+
+    private Integer nextValue(Integer boxRow, Integer boxColumn, Integer valueFor) {
+        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
+        else if (boxRow == 2 && boxColumn == 2) return ++valueFor;
+        return valueFor;
+    }
+
+    private Integer[][] convertToInts() {
+        return  Stream.of(fields)
+                .map(fieldsRow -> Stream.of(fieldsRow)
+                        .map(field -> field.getValue())
+                        .collect(Collectors.toList()).toArray(new Integer[9]))
+                .collect(Collectors.toList())
+                .toArray(new Integer[9][]);
+    }
+
 
     private boolean recursiveFill(Box box, Integer value) {
         List<Field> actualBoxPossibleFields = box.getEmptyFields();
@@ -20,15 +68,15 @@ public class BacktrackingGenerator implements Generator {
             Iterator<Field> emptyFieldsIterator = actualBoxPossibleFields.iterator();
             while (emptyFieldsIterator.hasNext()) {
                 Field nextField = emptyFieldsIterator.next();
-                if (!isSatisfied(nextField, value)) {
+                if (!nextField.isSatisfied(value)) {
                     continue;
                 }
                 nextField.setValue(value);
-                Box nextBox = ground.nextBox(box.getBoxRow(), box.getBoxColumn(), value);
+                Box nextBox = nextBox(box.getBoxRow(), box.getBoxColumn(), value);
                 if (nextBox == null) {
                     return true;
                 }
-                Integer nextValue = ground.nextValue(box.getBoxRow(), box.getBoxColumn(), value);
+                Integer nextValue = nextValue(box.getBoxRow(), box.getBoxColumn(), value);
                 boolean nextFill = recursiveFill(nextBox, nextValue);
                 if (nextFill == true) {
                     return true;
@@ -40,22 +88,20 @@ public class BacktrackingGenerator implements Generator {
         if (box.isLast() && box.isFull()) {
             return true;
         } else return false;
-
     }
 
-    private boolean isSatisfied(Field field, final Integer value) {
-        List<Field> crossFields = field.getCrossFields();
-        return !crossFields.stream()
-                .anyMatch(actual -> actual.getValue() == value);
+    public Integer[][] generate() {
+        recursiveFill(getFirstBox(), 1);
+        return convertToInts();
     }
 
-    public int[][] generate() {
-        recursiveFill(ground.getFirstBox(), 1);
-        return ground.getResult();
+    @Override
+    public Integer[][] generate(Integer[][] preset) throws IllegalStateException {
+        return new Integer[0][];
     }
 
     public static void main(String[] args) {
-        int[][] ground = new BacktrackingGenerator().generate();
+        Integer[][] ground = new BacktrackingGenerator().generate();
         for (int i = 0; i < 9; i++) {
             if (i % 3 == 0) {
                 System.out.println();
