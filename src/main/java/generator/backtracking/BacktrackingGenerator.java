@@ -13,7 +13,7 @@ public class BacktrackingGenerator implements Generator {
     }
 
     private boolean recursiveFill(Box box, Integer value) {
-        ArrayList<Field> actualBoxPossibleFields = box.getEmptyFields();
+        List<Field> actualBoxPossibleFields = box.getEmptyFields();
 
         if (!actualBoxPossibleFields.isEmpty()) {
             Collections.shuffle(actualBoxPossibleFields);

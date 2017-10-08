@@ -26,6 +26,12 @@ public class Field {
         return column;
     }
 
+    public boolean isInSameBox(Field that){
+        return (this.getRow() / 3 == that.getRow() / 3 )
+                && (this.getColumn() / 3 == that.getColumn() / 3);
+    }
+
+
     public Integer getValue() {
         return value;
     }
