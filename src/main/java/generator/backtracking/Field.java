@@ -23,6 +23,11 @@ public class Field {
         this.boxColumn = column / 3;
     }
 
+    public Field(Integer row, Integer column, Integer value){
+        this(row, column);
+        this.value = value;
+    }
+
     public void initCrossFields(Field[][] fields) {
         crossFields = Stream.of(fields)
                 .flatMap(fieldsRow -> Stream.of(fieldsRow))

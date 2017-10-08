@@ -8,27 +8,34 @@ import java.util.stream.Stream;
 
 public class BacktrackingGenerator implements Generator {
 
-    private final Field[][] fields;
-    private final Box[][] boxes;
+    private Field[][] fields;
+    private Box[][] boxes;
 
-    public BacktrackingGenerator() {
+
+    @Override
+    public Integer[][] generate() {
+        return generate(null);
+    }
+
+    @Override
+    public Integer[][] generate(Integer[][] preset) throws IllegalStateException {
         fields = new Field[9][9];
         boxes = new Box[3][3];
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[i].length; j++) {
-                fields[i][j] = new Field(i, j);
-            }
+        if (preset == null) createEmptyFields();
+        else {
+            validatePreset(preset);
+            createFieldsByPreset(preset);
         }
-        Stream.of(fields)
-                .forEach(fieldsRow -> Stream.of(fieldsRow)
-                        .forEach(field -> {
-                            field.initCrossFields(fields);
-                            field.initBoxFields(fields);
-                        }));
+        initFields();
+        createBoxes();
+        recursiveFill(getFirstBox(), 1);
+        return convertToInts();
+    }
 
-        for (int i = 0; i < boxes.length; i++) {
-            for (int j = 0; j < boxes[i].length; j++) {
-                boxes[i][j] = new Box(i, j, fields);
+    private void validatePreset(Integer[][] preset) {
+        for (int i = 0; i < preset.length; i++) {
+            for (int j = 0; j < preset[i].length; j++) {
+                // TODO
             }
         }
     }
@@ -51,7 +58,7 @@ public class BacktrackingGenerator implements Generator {
     }
 
     private Integer[][] convertToInts() {
-        return  Stream.of(fields)
+        return Stream.of(fields)
                 .map(fieldsRow -> Stream.of(fieldsRow)
                         .map(field -> field.getValue())
                         .collect(Collectors.toList()).toArray(new Integer[9]))
@@ -90,14 +97,33 @@ public class BacktrackingGenerator implements Generator {
         } else return false;
     }
 
-    public Integer[][] generate() {
-        recursiveFill(getFirstBox(), 1);
-        return convertToInts();
+    private void createEmptyFields() {
+        createFieldsByPreset(new Integer[9][9]);
     }
 
-    @Override
-    public Integer[][] generate(Integer[][] preset) throws IllegalStateException {
-        return new Integer[0][];
+    private void createFieldsByPreset(Integer[][] preset) {
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[i].length; j++) {
+                fields[i][j] = preset[i][j] == null ? new Field(i, j) : new Field(i, j, preset[i][j]);
+            }
+        }
+    }
+
+    private void createBoxes() {
+        for (int i = 0; i < boxes.length; i++) {
+            for (int j = 0; j < boxes[i].length; j++) {
+                boxes[i][j] = new Box(i, j, fields);
+            }
+        }
+    }
+
+    private void initFields() {
+        Stream.of(fields)
+                .forEach(fieldsRow -> Stream.of(fieldsRow)
+                        .forEach(field -> {
+                            field.initCrossFields(fields);
+                            field.initBoxFields(fields);
+                        }));
     }
 
     public static void main(String[] args) {
