@@ -50,7 +50,7 @@ public class BacktrackingGenerator implements Generator {
     private Box getFirstBox() {
         return boxes[0][0];
     }
-
+// TODO separate this block into a class
     private Integer nextValue(Integer boxRow, Integer boxColumn, Integer valueFor) {
         if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
         else if (boxRow == 2 && boxColumn == 2) return ++valueFor;
