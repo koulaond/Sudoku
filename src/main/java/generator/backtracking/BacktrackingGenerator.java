@@ -11,7 +11,6 @@ public class BacktrackingGenerator implements Generator {
     private Field[][] fields;
     private Box[][] boxes;
 
-
     @Override
     public Integer[][] generate() {
         return generate(null);
@@ -110,11 +109,7 @@ public class BacktrackingGenerator implements Generator {
     }
 
     private void createBoxes() {
-        for (int i = 0; i < boxes.length; i++) {
-            for (int j = 0; j < boxes[i].length; j++) {
-                boxes[i][j] = new Box(i, j, fields);
-            }
-        }
+
     }
 
     private void initFields() {
