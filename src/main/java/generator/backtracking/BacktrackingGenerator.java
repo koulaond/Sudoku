@@ -3,32 +3,24 @@ package generator.backtracking;
 import generator.Generator;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BacktrackingGenerator implements Generator {
 
-    private Field[][] fields;
+    private FieldProvider fieldProvider;
     private Box[][] boxes;
 
     @Override
     public Integer[][] generate() {
-        return generate(null);
+        fieldProvider = new FieldProvider();
     }
 
     @Override
-    public Integer[][] generate(Integer[][] preset) throws IllegalStateException {
-        fields = new Field[9][9];
+    public Integer[][] generate(Integer[][] presets) throws IllegalStateException {
+        fieldProvider = new FieldProvider(presets);
         boxes = new Box[3][3];
-        if (preset == null) createEmptyFields();
-        else {
-            validatePreset(preset);
-            createFieldsByPreset(preset);
-        }
-        initFields();
         createBoxes();
         recursiveFill(getFirstBox(), 1);
-        return convertToInts();
+        return fieldProvider.convertToInts();
     }
 
     private void validatePreset(Integer[][] preset) {
@@ -55,16 +47,6 @@ public class BacktrackingGenerator implements Generator {
         else if (boxRow == 2 && boxColumn == 2) return ++valueFor;
         return valueFor;
     }
-
-    private Integer[][] convertToInts() {
-        return Stream.of(fields)
-                .map(fieldsRow -> Stream.of(fieldsRow)
-                        .map(field -> field.getValue())
-                        .collect(Collectors.toList()).toArray(new Integer[9]))
-                .collect(Collectors.toList())
-                .toArray(new Integer[9][]);
-    }
-
 
     private boolean recursiveFill(Box box, Integer value) {
         List<Field> actualBoxPossibleFields = box.getEmptyFields();
@@ -96,29 +78,8 @@ public class BacktrackingGenerator implements Generator {
         } else return false;
     }
 
-    private void createEmptyFields() {
-        createFieldsByPreset(new Integer[9][9]);
-    }
-
-    private void createFieldsByPreset(Integer[][] preset) {
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[i].length; j++) {
-                fields[i][j] = preset[i][j] == null ? new Field(i, j) : new Field(i, j, preset[i][j]);
-            }
-        }
-    }
-
     private void createBoxes() {
 
-    }
-
-    private void initFields() {
-        Stream.of(fields)
-                .forEach(fieldsRow -> Stream.of(fieldsRow)
-                        .forEach(field -> {
-                            field.initCrossFields(fields);
-                            field.initBoxFields(fields);
-                        }));
     }
 
     public static void main(String[] args) {
@@ -135,5 +96,4 @@ public class BacktrackingGenerator implements Generator {
             System.out.println();
         }
     }
-
 }

@@ -1,11 +1,9 @@
 package generator.backtracking;
 
-import java.util.List;
-
 public class BoxProvider {
-    private List<Box> boxes;
+    private Box[][] boxes;
 
-    BoxProvider(){
-       // TODO
+    BoxProvider() {
+        boxes = new Box[3][3];
     }
 }
