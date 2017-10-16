@@ -2,29 +2,16 @@ package generator.backtracking;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Box {
     private final Integer boxRow;
     private final Integer boxColumn;
-    private final Field[][] fields;
+    private final List<Field> boxFields;
 
-    public Box(Integer boxRow, Integer boxColumn, Field[][] fields) {
+    public Box(Integer boxRow, Integer boxColumn, List<Field> boxFields) {
         this.boxRow = boxRow;
         this.boxColumn = boxColumn;
-        this.fields = new Field[3][3];
-        loadFields(fields);
-    }
-
-    private void loadFields(Field[][] fields) {
-        Integer startX = boxRow * 3;
-        Integer startY = boxColumn * 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                Field actual = fields[startX + i][startY + j];
-                this.fields[i][j] = actual;
-            }
-        }
+        this.boxFields = boxFields;
     }
 
     public Integer getBoxRow() {
@@ -44,7 +31,7 @@ public class Box {
     }
 
     public List<Field> getEmptyFields() {
-        return Stream.of(fields).flatMap(fieldsRow -> Stream.of(fieldsRow))
+        return boxFields.stream()
                 .filter(Field::isEmpty)
                 .collect(Collectors.toList());
     }

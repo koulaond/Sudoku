@@ -1,5 +1,6 @@
 package generator.backtracking;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,8 +21,7 @@ public class FieldProvider {
                         }));
     }
 
-    public FieldProvider(Integer[][] presets){
-        this();
+    public void setPresets(Integer[][] presets) {
         for (int i = 0; i < presets.length; i++) {
             for (int j = 0; j < presets[i].length; j++) {
                 fields[i][j].setValue(presets[i][j]);
@@ -29,16 +29,21 @@ public class FieldProvider {
         }
     }
 
-    Integer[][] convertToInts() {
-        return Stream.of(fields)
-                .map(fieldsRow -> Stream.of(fieldsRow)
-                        .map(field -> field.getValue())
-                        .collect(Collectors.toList()).toArray(new Integer[9]))
-                .collect(Collectors.toList())
-                .toArray(new Integer[9][]);
+    public Field getField(Integer row, Integer column) {
+        return fields[row][column];
     }
 
-    public Field getField(Integer row, Integer column){
-        return fields[row][column];
+    public List<Field> getFieldsByBox(Integer boxRow, Integer boxColumn) {
+        return Stream.of(fields)
+                .flatMap(fieldsRow -> Stream.of(fieldsRow))
+                .filter(field -> field.getBoxRow().equals(boxRow))
+                .filter(field -> field.getBoxColumn().equals(boxColumn))
+                .collect(Collectors.toList());
+    }
+
+    public List<Field> getAllFields() {
+        return Stream.of(fields)
+                .flatMap(fieldsRow -> Stream.of(fieldsRow))
+                .collect(Collectors.toList());
     }
 }

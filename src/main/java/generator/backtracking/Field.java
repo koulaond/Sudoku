@@ -1,8 +1,6 @@
 package generator.backtracking;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -21,11 +19,6 @@ public class Field {
         this.column = column;
         this.boxRow = row / 3;
         this.boxColumn = column / 3;
-    }
-
-    public Field(Integer row, Integer column, Integer value){
-        this(row, column);
-        this.value = value;
     }
 
     public void initCrossFields(Field[][] fields) {

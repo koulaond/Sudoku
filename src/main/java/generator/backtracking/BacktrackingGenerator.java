@@ -7,20 +7,23 @@ import java.util.*;
 public class BacktrackingGenerator implements Generator {
 
     private FieldProvider fieldProvider;
-    private Box[][] boxes;
+    private BoxProvider boxProvider;
+
+    BacktrackingGenerator(){
+        fieldProvider = new FieldProvider();
+        boxProvider = new BoxProvider(fieldProvider);
+    }
 
     @Override
     public Integer[][] generate() {
-        fieldProvider = new FieldProvider();
+        recursiveFill(boxProvider.firstBox(), 1);
+        return new FieldsConverter(fieldProvider).convertToInts();
     }
 
     @Override
     public Integer[][] generate(Integer[][] presets) throws IllegalStateException {
-        fieldProvider = new FieldProvider(presets);
-        boxes = new Box[3][3];
-        createBoxes();
-        recursiveFill(getFirstBox(), 1);
-        return fieldProvider.convertToInts();
+        fieldProvider.setPresets(presets);
+        return generate();
     }
 
     private void validatePreset(Integer[][] preset) {
@@ -29,23 +32,6 @@ public class BacktrackingGenerator implements Generator {
                 // TODO
             }
         }
-    }
-// TODO separate this block into a class
-    private Box nextBox(Integer boxRow, Integer boxColumn, Integer valueFor) {
-        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
-        else if (boxRow == 2 && boxColumn == 2) return getFirstBox();
-        else if (boxColumn == 2) return boxes[boxRow + 1][0];
-        else return boxes[boxRow][boxColumn + 1];
-    }
-
-    private Box getFirstBox() {
-        return boxes[0][0];
-    }
-// TODO separate this block into a class
-    private Integer nextValue(Integer boxRow, Integer boxColumn, Integer valueFor) {
-        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
-        else if (boxRow == 2 && boxColumn == 2) return ++valueFor;
-        return valueFor;
     }
 
     private boolean recursiveFill(Box box, Integer value) {
@@ -60,11 +46,11 @@ public class BacktrackingGenerator implements Generator {
                     continue;
                 }
                 nextField.setValue(value);
-                Box nextBox = nextBox(box.getBoxRow(), box.getBoxColumn(), value);
+                Box nextBox = boxProvider.nextBox(box.getBoxRow(), box.getBoxColumn(), value);
                 if (nextBox == null) {
                     return true;
                 }
-                Integer nextValue = nextValue(box.getBoxRow(), box.getBoxColumn(), value);
+                Integer nextValue = boxProvider.nextValue(box.getBoxRow(), box.getBoxColumn(), value);
                 boolean nextFill = recursiveFill(nextBox, nextValue);
                 if (nextFill == true) {
                     return true;
