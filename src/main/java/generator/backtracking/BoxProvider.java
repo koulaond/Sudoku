@@ -11,17 +11,11 @@ public class BoxProvider {
 
     }
 
-    public Box nextBox(Integer boxRow, Integer boxColumn, Integer valueFor) {
-        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
-        else if (boxRow == 2 && boxColumn == 2) return firstBox();
-        else if (boxColumn == 2) return boxes[boxRow + 1][0];
-        else return boxes[boxRow][boxColumn + 1];
-    }
-
-    public Integer nextValue(Integer boxRow, Integer boxColumn, Integer valueFor) {
-        if (boxRow == 2 && boxColumn == 2 && valueFor == 9) return null;
-        else if (boxRow == 2 && boxColumn == 2) return ++valueFor;
-        return valueFor;
+    public Box nextBox(Box currentBox, Integer valueFor) {
+        if (currentBox.isLast() && valueFor == 9) return null;
+        else if (currentBox.isLast()) return firstBox();
+        else if (currentBox.getBoxColumn() == 2) return boxes[currentBox.getBoxRow() + 1][0];
+        else return boxes[currentBox.getBoxRow()][currentBox.getBoxColumn() + 1];
     }
 
     public Box firstBox() {

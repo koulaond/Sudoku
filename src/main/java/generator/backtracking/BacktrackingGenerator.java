@@ -8,15 +8,18 @@ public class BacktrackingGenerator implements Generator {
 
     private FieldProvider fieldProvider;
     private BoxProvider boxProvider;
+    private ValueProvider valueProvider;
 
-    BacktrackingGenerator(){
+    BacktrackingGenerator() {
         fieldProvider = new FieldProvider();
         boxProvider = new BoxProvider(fieldProvider);
+        valueProvider = new ValueProvider();
     }
 
     @Override
     public Integer[][] generate() {
-        recursiveFill(boxProvider.firstBox(), 1);
+        DefaultGroundContainer container = new DefaultGroundContainer();
+        recursiveFill(container, boxProvider.firstBox(), 1);
         return new FieldsConverter(fieldProvider).convertToInts();
     }
 
@@ -34,38 +37,41 @@ public class BacktrackingGenerator implements Generator {
         }
     }
 
-    private boolean recursiveFill(Box box, Integer value) {
-        List<Field> actualBoxPossibleFields = box.getEmptyFields();
+    private boolean recursiveFill(DefaultGroundContainer container, Box currentBox, Integer currentValue) {
+        List<Field> actualBoxPossibleFields = currentBox.getEmptyFields();
 
         if (!actualBoxPossibleFields.isEmpty()) {
             Collections.shuffle(actualBoxPossibleFields);
             Iterator<Field> emptyFieldsIterator = actualBoxPossibleFields.iterator();
             while (emptyFieldsIterator.hasNext()) {
                 Field nextField = emptyFieldsIterator.next();
-                if (!nextField.isSatisfied(value)) {
+                if (!nextField.isSatisfied(currentValue)) {
+                    // This field is not satisfied (value collision in row / column / box), try another.
                     continue;
                 }
-                nextField.setValue(value);
-                Box nextBox = boxProvider.nextBox(box.getBoxRow(), box.getBoxColumn(), value);
+                // This field is satisfied. Set value and continue with next box.
+                nextField.setValue(currentValue);
+                Box nextBox = boxProvider.nextBox(currentBox, currentValue);
                 if (nextBox == null) {
+                    // If the next box is null then whole ground is filled and it is finished - return true.
                     return true;
                 }
-                Integer nextValue = boxProvider.nextValue(box.getBoxRow(), box.getBoxColumn(), value);
-                boolean nextFill = recursiveFill(nextBox, nextValue);
+                Integer nextValue = valueProvider.nextValue(currentBox, currentValue);
+                boolean nextFill = recursiveFill(container, nextBox, nextValue);
                 if (nextFill == true) {
+                    // Recursive way back positive - last value was set and there is nothing to fill - return true.
                     return true;
                 } else {
+                    // Recursive way back negative - this way was not satisfied (there was no option to find
+                    // satisfied numbers layout - empty the field and try another possible number if some exists.
                     nextField.setEmpty();
                 }
             }
         }
-        if (box.isLast() && box.isFull()) {
+        // If current box is last and is full then whole ground is full and filling is finished - return true.
+        if (currentBox.isLast() && currentBox.isFull()) {
             return true;
-        } else return false;
-    }
-
-    private void createBoxes() {
-
+        } else return false;    // Otherwise it is not filled and no possible fields left to try this branch
     }
 
     public static void main(String[] args) {
